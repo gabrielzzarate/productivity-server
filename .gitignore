@@ -1,3 +1,6 @@
+# Keys
+config/dev.js
+
 # Logs
 logs
 *.log
