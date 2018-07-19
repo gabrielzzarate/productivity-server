@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {
   GraphQLSchema,
   GraphQLNonNull,
@@ -18,9 +17,18 @@ export const taskType = new GraphQLObjectType({
   fields: () => ({
     _id: { type: new GraphQLNonNull(GraphQLString) },
     title: { type: new GraphQLNonNull(GraphQLString) },
-    complete: { type: new GraphQLNonNull(GraphQLBoolean)}
+    complete: { type: new GraphQLNonNull(GraphQLBoolean)},
   })
 });
+
+// const UserType = new GraphQLObjectType({
+//   name: 'User',
+//   fields: {
+//     id: { type: GraphQLString },
+//     name: { type: GraphQLString },
+//     age: { type: GraphQLInt },
+//   }
+// });
 
 export const viewerType = new GraphQLObjectType({
   name: 'Viewer',
@@ -39,8 +47,14 @@ const RootQuery = new GraphQLObjectType({
       type: viewerType,
       //args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
-        //return _.find(viewer, { id: args.id });
-        return viewer
+        return viewer;
+      }
+    }, 
+    task: {
+      type: taskType,
+      args: { id: { type: GraphQLString } },
+      resolve: async (parentValue, args) => {
+        await Task.findById({ _id: args.id });
       }
     }
   }
