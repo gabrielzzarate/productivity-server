@@ -25,7 +25,6 @@ fs.writeFile('src/data/schema.json', JSON.stringify(jsonSchema, null, 2), err =>
   console.log('schema.json created successfully.');
 });
 
-
 mongoose.connect(keys.mongoURI);
 
 app.listen(PORT, () => {
