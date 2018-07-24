@@ -8,11 +8,12 @@ import {
   GraphQLObjectType
 } from 'graphql';
 
+import User from '../models/user';
 import Task from '../models/task';
 
 const viewer = {};
 
-export const taskType = new GraphQLObjectType({
+export const TaskType = new GraphQLObjectType({
   name: 'Task',
   fields: () => ({
     _id: { type: new GraphQLNonNull(GraphQLString) },
@@ -21,47 +22,85 @@ export const taskType = new GraphQLObjectType({
   })
 });
 
-// const UserType = new GraphQLObjectType({
-//   name: 'User',
-//   fields: {
-//     id: { type: GraphQLString },
-//     name: { type: GraphQLString },
-//     age: { type: GraphQLInt },
-//   }
-// });
+export const UserType = new GraphQLObjectType({
+  name: 'User',
+  fields: {
+    id: { type: GraphQLString },
+    name: { type: GraphQLString },
+    age: { type: GraphQLInt },
+  }
+});
 
-export const viewerType = new GraphQLObjectType({
+export const ViewerType = new GraphQLObjectType({
   name: 'Viewer',
   fields: () => ({
     tasks: {
-      type: new GraphQLList(taskType),
+      type: new GraphQLList(TaskType),
       resolve: async () => await Task.find({})
     }
   })
+});
+
+export const mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addUser: {
+      type: UserType,
+      args: { 
+        firstName: { type: new GraphQLNonNull(GraphQLString) },
+        age: { type: new GraphQLNonNull(GraphQLInt) }
+      },
+      resolve: async (parentValue, args) => {
+        await User.create({ firstName: args.firstName, age: args.age });
+      }
+    },
+    deleteUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString)}
+      },
+      resolve: async (parentValue, args) => {
+        await User.deleteOne({ id: args.id });
+      }
+    },
+    updateUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+        firstName: { type: GraphQLString },
+        age: { type: GraphQLInt }
+      },
+      resolve: async (parentValue, args) => {
+        await User.updateOne({ id: args.id }, { args });
+      }
+    }
+  }
 });
 
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     viewer: {
-      type: viewerType,
+      type: ViewerType,
       //args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
         return viewer;
       }
-    }, 
-    task: {
-      type: taskType,
-      args: { id: { type: GraphQLString } },
-      resolve: async (parentValue, args) => {
-        await Task.findById({ _id: args.id });
-      }
-    }
+    },
+    // }, 
+    // task: {
+    //   type: TaskType,
+    //   args: { id: { type: GraphQLString } },
+    //   resolve: async (parentValue, args) => {
+    //     await Task.findById({ _id: args.id });
+    //   }
+    // }
   }
 });
 
 const schema = () => new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation
 });
 
 export default schema; 

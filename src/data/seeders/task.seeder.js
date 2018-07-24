@@ -42,8 +42,8 @@ const closeConnection = () => {
   });
 }
 
-async function initSeed() {
-  await mongoose.connect(keys.mongoURI);
+export async function initSeed() {
+  await mongoose.connect('mongodb://localhost:27017');
 
   console.log('****** seeding session instances...');
   await taskSeeder();
@@ -51,5 +51,4 @@ async function initSeed() {
   closeConnection();
 }
 
-initSeed();
        
